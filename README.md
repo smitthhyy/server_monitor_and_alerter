@@ -20,12 +20,14 @@ When it detects an issue it sends an email to the specified email addresses.
 
 ## Installation
 
-1. cd into /opt
-2. `git clone https://github.com/smitthhyy/server_monitor_and_alerter.git
-3. create a virtual environment using python3 -m venv /opt/server_monitor_and_alerter`
-4. run `source /opt/server_monitor_and_alerter/bin/activate`
-5. run `pip install -r /opt/server_monitor_and_alerter/requirements.txt`
-6. Copy the config.example.yaml to config.yaml
+1. `cd /opt`
+2. `git clone https://github.com/smitthhyy/server_monitor_and_alerter.git`
+3. You may need to run `apt update; apt install python3.10-venv -y` before the next step
+3. create a virtual environment using `python3 -m venv /opt/server_monitor_and_alerter`
+4. `cd /opt/server_monitor_and_alerter`
+4. run `source bin/activate`
+5. run `pip install -r requirements.txt`
+6. `cp config.example.yaml config.yaml`
 7. Edit the config.yaml file to your needs
 8. Make sure your in the /opt/server_monitor_and_alerter/bin directory
 9. Run the application using `python3 main.py`
