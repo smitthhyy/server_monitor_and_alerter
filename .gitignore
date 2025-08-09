@@ -6,4 +6,5 @@ Lib/*
 include/*
 Scripts/*
 config.yaml
+pyvenv.cfg
 
