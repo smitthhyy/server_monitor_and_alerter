@@ -48,7 +48,11 @@ def build_monitors():
         monitors.append(ServerMonitor(t["server_check_url"]))
 
     # key processes monitor
-    monitors.append(ProcessMonitor(t["processes"], min_count=1))
+    # new: one monitor per process name
+    for proc_name, min_cnt in config.thresholds["processes"].items():
+        monitors.append(
+            ProcessMonitor([proc_name], min_count=min_cnt)
+        )
 
     # per-client app monitors: guard against None
     client_apps_cfg = t.get("client_apps") or {}
