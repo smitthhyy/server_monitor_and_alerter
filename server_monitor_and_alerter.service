@@ -1,0 +1,18 @@
+[Unit]
+Description=Server Monitor and Alerter
+After=network.target
+
+[Service]
+Type=simple
+# Run under a non-root user if possible:
+User=ubuntu
+# Working directory where your app and virtualenv live:
+WorkingDirectory=/opt/server_monitor_and_alerter
+# Path to the virtualenv's python binary:
+ExecStart=/opt/server_monitor_and_alerter/bin/python /opt/server_monitor_and_alerter/main.py
+# Restart on failure:
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

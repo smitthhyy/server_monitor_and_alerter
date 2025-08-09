@@ -1,0 +1,46 @@
+# Amazon AWS configuration. This application uses Amazon SES to send
+# alert emails. See https://aws.amazon.com/ses/ for more information.
+# It expects to find AWS credentials in the environment. Specifically:
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+# Alternatively, you can set them in ~/.aws/credentials with:
+#    [default]
+#    aws_access_key_id = YOUR_ACCESS_KEY_ID
+#    aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+aws:
+  region: ap-southeast-2
+  ses_sender: no-reply@example.com
+  ses_recipients:
+    - admin1@example.com
+    - admin2@example.com
+
+thresholds:
+  # Thresholds in %
+  disk_pct: 80
+  cpu_pct: 75
+  mem_pct: 75
+  # Thresholds in bytes/sec
+  net_bytes: 10000000     # bytes/sec
+  # List any URLs that should be monitored.
+  server_check_urls:
+    - https://site1.example.com:443/health
+    - https://site2.example.com:443/health
+  # List any processes that should be monitored.
+  processes:
+    - apache2
+    - mysqld
+    - mosquitto
+  # List any client apps that should be monitored.
+  client_apps:
+    /home/client1/client_app: 1  # min running procs
+    /home/client2/client_app: 1
+  # alert_repeat_cycles: how many consecutive alerts before
+  # sending subsequent emails for same alert. Multiply by
+  # interval_secs to get total time between alerts.
+  alert_repeat_cycles: 15
+
+# time in seconds between checks
+interval_secs: 60
+
+# The alert email subject stats with [ALERT] then subject_suffix
+subject_suffix: "[s1-iotsd]"

@@ -7,5 +7,8 @@ class Config:
         self.aws = data["aws"]
         self.thresholds = data["thresholds"]
         self.interval = data.get("interval_secs", 60)
+        # new: optional string to tack on after [ALERT]
+        self.subject_suffix = data.get("subject_suffix", "")
+
 
 config = Config()
