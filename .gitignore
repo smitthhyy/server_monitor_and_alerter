@@ -5,6 +5,8 @@ Scripts
 Lib/*
 include/*
 Scripts/*
+.idea
+.idea/*
 config.yaml
 pyvenv.cfg
-
+aichat.txt
