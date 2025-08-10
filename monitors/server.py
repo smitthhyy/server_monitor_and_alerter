@@ -28,10 +28,37 @@ class ServerMonitor(BaseMonitor):
             code = "DOWN"
         return (not ok, code)
 
-    def run(self):
-        status, value = self.check()
-        if status:
-            subject = f"[ALERT] {self.name} ({self.url}) threshold exceeded"
-            body = f"{self.name} check for '{self.url}' failed: returned {value}"
+def run(self):
+    status, value = self.check()
+
+    if status:
+        # bump the counter first
+        self._error_count += 1
+
+        # send only on 1st error or once per repeat‐cycle
+        if self._error_count == 1 or self._error_count >= self._repeat_cycles:
+            name_list = ", ".join(self.names)
+            subject   = f"[ALERT] {self.name} ({name_list}) threshold exceeded"
+            body      = f"{self.name} for [{name_list}] value={value}, min_count={self.min_count}"
+            from alert import alerter
             alerter.send(subject, body)
-            logger.debug("Sending alert email:\n\tsubject=%s\n\tbody=%s", subject, body)
+
+            # reset after sending a repeat alert
+            if self._error_count >= self._repeat_cycles:
+                self._error_count = 0
+
+    else:
+        # reset and optionally send recovery
+        if self._last_status:
+            name_list = ", ".join(self.names)
+            subject   = f"[RECOVERY] {self.name} ({name_list}) back to normal"
+            body      = f"{self.name} for [{name_list}] value={value}, min_count={self.min_count}"
+            from alert import alerter
+            alerter.send(subject, body)
+
+        # reset error count on any healthy cycle
+        self._error_count = 0
+
+    # record status for next cycle
+    self._last_status = status
+
