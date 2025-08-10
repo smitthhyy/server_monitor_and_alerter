@@ -38,3 +38,12 @@ Once you are happy that everything is working the way you want, you can set up t
 2. `systemctl enable server_monitor_and_alerter.service`
 3. `systemctl start server_monitor_and_alerter.service`
 
+## Update the application from GitHub
+Use the following commands to update the application from GitHub.
+
+`git fetch origin main`
+
+`git reset --hard origin/main`
+
+This fetches the latest code from the GitHub repository and resets the 
+local repository to the latest code without overwriting the config.yaml file.
