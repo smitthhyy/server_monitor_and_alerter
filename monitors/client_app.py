@@ -62,35 +62,33 @@ class ClientAppMonitor(BaseMonitor):
         logger.debug("Total processes found under %s: %d", self.path, cnt)
         return (cnt < self.min_procs, cnt)
 
-def run(self):
-    status, value = self.check()
 
-    if status:
-        # first increment error counter
-        self._error_count += 1
+    def run(self):
+        status, value = self.check()
 
-        # only send on first failure or at repeat threshold
-        if self._error_count == 1 or self._error_count >= self._repeat_cycles:
-            subject = f"[ALERT] {self.name} ({self.path}) threshold exceeded"
-            body    = f"{self.name} for [{self.path}] value={value}, min_procs={self.min_procs}"
-            from alert import alerter
-            alerter.send(subject, body)
+        if status:
+            # bump the error counter first
+            self._error_count += 1
+            # send only on first error or at repeat threshold
+            if self._error_count == 1 or self._error_count >= self._repeat_cycles:
+                subject = f"[ALERT] {self.name} ({self.path}) threshold exceeded"
+                body    = f"{self.name} for [{self.path}] value={value}, min_procs={self.min_procs}"
+                from alert import alerter
+                alerter.send(subject, body)
+                # reset on repeat alert
+                if self._error_count >= self._repeat_cycles:
+                    self._error_count = 0
 
-            # reset on repeat‐alert
-            if self._error_count >= self._repeat_cycles:
-                self._error_count = 0
+        else:
+            # on recovery, only alert if we were previously in error
+            if self._last_status:
+                subject = f"[RECOVERY] {self.name} ({self.path}) back to normal"
+                body    = f"{self.name} for [{self.path}] value={value}, min_procs={self.min_procs}"
+                from alert import alerter
+                alerter.send(subject, body)
+            self._error_count = 0
 
-    else:
-        # on recovery, only send if we were previously in error
-        if self._last_status:
-            subject = f"[RECOVERY] {self.name} ({self.path}) back to normal"
-            body    = f"{self.name} for [{self.path}] value={value}, min_procs={self.min_procs}"
-            from alert import alerter
-            alerter.send(subject, body)
+        # record status for next cycle
+        self._last_status = status
 
-        # reset counter whenever healthy
-        self._error_count = 0
-
-    # record for next cycle
-    self._last_status = status
 
