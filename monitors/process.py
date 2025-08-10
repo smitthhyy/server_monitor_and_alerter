@@ -31,34 +31,35 @@ class ProcessMonitor(BaseMonitor):
         return (found < self.min_count, found)
 
     def run(self):
-        # duplicate BaseMonitor.run logic but inject process‐name into subject/body
         status, value = self.check()
+
         if status:
-            # include the exact name(s) in the subject
-            name_list = ", ".join(self.names)
-            subject = f"[ALERT] {self.name} ({name_list}) threshold exceeded"
-            body    = (
-                f"{self.name} for [{name_list}] "
-                f"value={value}, min_count={self.min_count}"
-            )
-            from alert import alerter
-            alerter.send(subject, body)
-            # handle repeat‐cycle logic exactly like BaseMonitor:
+            # 1) increment the counter
             self._error_count += 1
-            if self._error_count >= self._repeat_cycles:
-                self._error_count = 0
-        else:
-            # reset and optionally send recovery
-            if self._last_status:
+
+            # 2) send only on first error or at repeat threshold
+            if self._error_count == 1 or self._error_count >= self._repeat_cycles:
                 name_list = ", ".join(self.names)
-                subject = f"[RECOVERY] {self.name} ({name_list}) back to normal"
-                body    = (
-                    f"{self.name} for [{name_list}] "
-                    f"value={value}, min_count={self.min_count}"
-                )
+                subject   = f"[ALERT] {self.name} ({name_list}) threshold exceeded"
+                body      = f"{self.name} for [{name_list}] value={value}, min_count={self.min_count}"
                 from alert import alerter
                 alerter.send(subject, body)
+
+                # 3) reset on repeat‐alert
+                if self._error_count >= self._repeat_cycles:
+                    self._error_count = 0
+
+        else:
+            # recovery path: only send if we were previously in error
+            if self._last_status:
+                name_list = ", ".join(self.names)
+                subject   = f"[RECOVERY] {self.name} ({name_list}) back to normal"
+                body      = f"{self.name} for [{name_list}] value={value}, min_count={self.min_count}"
+                from alert import alerter
+                alerter.send(subject, body)
+
+            # reset counter whenever healthy
             self._error_count = 0
 
+        # remember current status
         self._last_status = status
-
