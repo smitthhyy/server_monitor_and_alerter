@@ -2,18 +2,16 @@ import logging
 import psutil
 from .base_monitor import BaseMonitor
 
+# Toggle client‐app debug logging here:
+ENABLE_DEBUG = False
+
 logger = logging.getLogger(__name__)
+if not ENABLE_DEBUG:
+    # suppress DEBUG messages in this module
+    logger.setLevel(logging.INFO)
 
 class ProcessMonitor(BaseMonitor):
     name = "Process"
-
-    # Toggle client‐app debug logging here:
-    ENABLE_DEBUG = True
-
-    logger = logging.getLogger(__name__)
-    if not ENABLE_DEBUG:
-        # suppress DEBUG messages in this module
-        logger.setLevel(logging.INFO)
 
     def __init__(self, proc_names, min_count=1):
         super().__init__(threshold=None)

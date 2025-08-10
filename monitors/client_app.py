@@ -16,7 +16,6 @@ class ClientAppMonitor(BaseMonitor):
 
     def __init__(self, path, min_procs):
         super().__init__(threshold=None)
-        # normalize to absolute folder path
         self.path = os.path.abspath(path)
         self.min_procs = min_procs
         logger.debug(
@@ -26,38 +25,62 @@ class ClientAppMonitor(BaseMonitor):
 
     def check(self):
         cnt = 0
-        for p in psutil.process_iter(attrs=["pid", "cwd", "cmdline"]):
-            info = p.info
-            cwd = info.get("cwd")
-            cmd = info.get("cmdline") or []
-            logger.debug(
-                "PID %s: cwd=%r, cmdline=%r",
-                info.get("pid"), cwd, cmd
-            )
+        for p in psutil.process_iter():
             try:
-                # 1) direct cwd match
-                if cwd and os.path.abspath(cwd) == self.path:
+                cmd = p.cmdline()
+                cwd = p.cwd()
+            except (psutil.Error, FileNotFoundError):
+                continue
+
+            logger.debug("PID %s: cwd=%r, cmdline=%r", p.pid, cwd, cmd)
+
+            # 1) match by cwd
+            if cwd and os.path.abspath(cwd) == self.path:
+                cnt += 1
+                logger.debug(" → match by cwd (count=%d)", cnt)
+                continue
+
+            # 2) match by script path
+            script = None
+
+            # case A: cmd[0] is like "node /full/path/to/app.js"
+            if cmd and isinstance(cmd[0], str) and cmd[0].startswith("node "):
+                parts = cmd[0].split(None, 1)
+                if len(parts) == 2:
+                    script = parts[1]
+
+            # case B: proper argv list, script in cmd[1]
+            elif len(cmd) > 1 and cmd[0].endswith("node"):
+                script = cmd[1]
+
+            if script:
+                full = os.path.abspath(os.path.join(cwd, script))
+                if full == self.path or full.startswith(self.path + os.sep):
                     cnt += 1
-                    logger.debug(" → match by cwd (count=%d)", cnt)
-
-                # 2) or script path (resolve relative to cwd)
-                elif cwd and len(cmd) > 1:
-                    script = cmd[1]
-                    full = os.path.abspath(os.path.join(cwd, script))
-                    # match exact folder or any sub‐directory/file under it
-                    if full == self.path or full.startswith(self.path + os.sep):
-                        cnt += 1
-                        logger.debug(
-                            " → match by script path %r (count=%d)",
-                            full, cnt
-                        )
-
-            except (IndexError, TypeError, FileNotFoundError) as e:
-                logger.debug(
-                    " → skipped pid %s due to %s",
-                    info.get("pid"), e
-                )
+                    logger.debug(" → match by script path %r (count=%d)", full, cnt)
 
         logger.debug("Total processes found under %s: %d", self.path, cnt)
-        # return True to alert when count < min_procs
         return (cnt < self.min_procs, cnt)
+
+
+    def run(self):
+        status, value = self.check()
+
+        if status:
+            self._error_count += 1
+            if self._error_count == 1 or self._error_count >= self._repeat_cycles:
+                subject = f"[ALERT] {self.name} ({self.path}) threshold exceeded"
+                body    = f"{self.name} for [{self.path}] value={value}, min_procs={self.min_procs}"
+                from alert import alerter
+                alerter.send(subject, body)
+                if self._error_count >= self._repeat_cycles:
+                    self._error_count = 0
+        else:
+            if self._last_status:
+                subject = f"[RECOVERY] {self.name} ({self.path}) back to normal"
+                body    = f"{self.name} for [{self.path}] value={value}, min_procs={self.min_procs}"
+                from alert import alerter
+                alerter.send(subject, body)
+            self._error_count = 0
+
+        self._last_status = status

@@ -34,17 +34,17 @@ thresholds:
     api-sales-receiver:           1
     sale-receiver-ubuntu64-intel: 1
 
+  # List any client apps that should be monitored. These are
+  # your node, python or php apps that you want to monitor. You need to specify
+  # the full path to the apps script file.
+  client_apps:
+    "/home/client1/client_app.js": 1  # min running procs
+    "/home/client2/client_app.js": 1
+
   # alert_repeat_cycles: how many consecutive alerts before
   # sending subsequent emails for same alert. Multiply by
   # interval_secs to get total time between alerts.
   alert_repeat_cycles: 15
-
-# List any client apps that should be monitored. These are
-# your node apps that you want to monitor. You need to specify
-# the full path to the app.
-client_apps:
-  "/home/client1/client_app.js": 1  # min running procs
-  "/home/client2/client_app.js": 1
 
 # time in seconds between checks
 interval_secs: 60

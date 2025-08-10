@@ -2,6 +2,14 @@ import time
 from alert import alerter
 from config import config
 
+# Toggle client‐app debug logging here:
+ENABLE_DEBUG = False
+
+logger = logging.getLogger(__name__)
+if not ENABLE_DEBUG:
+    # suppress DEBUG messages in this module
+    logger.setLevel(logging.INFO)
+
 class BaseMonitor:
     name = "base"
 
