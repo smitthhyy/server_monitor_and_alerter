@@ -25,11 +25,21 @@ from monitors.server import ServerMonitor
 from monitors.process import ProcessMonitor
 from monitors.client_app import ClientAppMonitor
 
+# Toggle client‐app debug logging here:
+# Note this turns on/off debug logging for all monitors
+ENABLE_DEBUG = False
+
 # configure root logger once
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s %(name)s %(levelname)s: %(message)s"
-)
+if not ENABLE_DEBUG:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s %(name)s %(levelname)s: %(message)s"
+    )
+else:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s: %(message)s"
+    )
 
 def build_monitors():
     t = config.thresholds
