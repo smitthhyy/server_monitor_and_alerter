@@ -19,6 +19,17 @@ It monitors the
 When it detects an issue it sends an email to the specified email addresses.
 
 ## Installation
+### Get AWS credentials
+You will need to get AWS credentials to use this application. You can get them from the AWS console.
+The recomended method is to create the /root/.aws/credentials file with the following content
+changing the values to your own:
+```
+[default]           
+aws_access_key_id = ABCDEFGHIJKLMNOPQRST
+aws_secret_access_key = abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN
+```                     
+### Install the application
+Use the following commands to install the application.
 
 1. `cd /opt`
 2. `git clone https://github.com/smitthhyy/server_monitor_and_alerter.git`
