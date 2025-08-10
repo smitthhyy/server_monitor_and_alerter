@@ -43,3 +43,4 @@ class BaseMonitor:
 
         # record status for next cycle
         self._last_status = status
+
