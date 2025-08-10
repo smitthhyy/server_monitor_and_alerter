@@ -25,6 +25,10 @@ from monitors.server import ServerMonitor
 from monitors.process import ProcessMonitor
 from monitors.client_app import ClientAppMonitor
 
+# silence urllib3 DEBUG chatter
+logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+
 # Toggle client‐app debug logging here:
 # Note this turns on/off debug logging for all monitors
 ENABLE_DEBUG = False
