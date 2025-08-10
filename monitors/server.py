@@ -1,6 +1,7 @@
 import requests
 from .base_monitor import BaseMonitor
 from alert import alerter
+import logging
 
 # Toggle client‐app debug logging here:
 ENABLE_DEBUG = False
