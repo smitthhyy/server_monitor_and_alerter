@@ -29,6 +29,9 @@ from monitors.client_app import ClientAppMonitor
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+# silence botocore DEBUG chatter
+logging.getLogger("botocore").setLevel(logging.WARNING)
+
 # Toggle client‐app debug logging here:
 # Note this turns on/off debug logging for all monitors
 ENABLE_DEBUG = False
