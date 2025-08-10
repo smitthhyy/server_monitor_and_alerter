@@ -41,12 +41,13 @@ Once you are happy that everything is working the way you want, you can set up t
 ## Update the application from GitHub
 Use the following commands to update the application from GitHub.
 
-`git fetch origin main`
-
-`git reset --hard origin/main`
-
+```
+cd /opt/server_monitor_and_alerter
+sudo git fetch origin main
+sudo git reset --hard origin/main
+sudo systemctl restart server_monitor_and_alerter.service
+```
 Success looks like:
-
 ```
 root@s2.syd.example.com:/opt/server_monitor_and_alerter# git fetch origin main
 remote: Enumerating objects: 24, done.
