@@ -45,5 +45,21 @@ Use the following commands to update the application from GitHub.
 
 `git reset --hard origin/main`
 
+Success looks like:
+
+```
+root@s2.syd.example.com:/opt/server_monitor_and_alerter# git fetch origin main
+remote: Enumerating objects: 24, done.
+remote: Counting objects: 100% (24/24), done.
+remote: Compressing objects: 100% (8/8), done.
+remote: Total 17 (delta 11), reused 15 (delta 9), pack-reused 0 (from 0)
+Unpacking objects: 100% (17/17), 2.77 KiB | 404.00 KiB/s, done.
+From https://github.com/smitthhyy/server_monitor_and_alerter
+ * branch            main       -> FETCH_HEAD
+   a865fa5..5091f74  main       -> origin/main
+root@s2.syd.example.com:/opt/server_monitor_and_alerter# git reset --hard origin/main
+HEAD is now at 5091f74 anonymize subject_suffix
+```
+
 This fetches the latest code from the GitHub repository and resets the 
 local repository to the latest code without overwriting the config.yaml file.
