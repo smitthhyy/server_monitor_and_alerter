@@ -51,3 +51,4 @@ interval_secs: 60
 
 # The alert email subject stats with [ALERT] then subject_suffix
 subject_suffix: "[s1-customer]"
+
