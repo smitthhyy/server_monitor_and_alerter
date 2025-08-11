@@ -1,17 +1,19 @@
-import psutil, time
+import psutil
 from .base_monitor import BaseMonitor
 
 class NetworkMonitor(BaseMonitor):
-    name = "NetTraffic"
+    name = "NetworkTraffic"
+    consecutive_required = 2
+
     def __init__(self, threshold):
         super().__init__(threshold)
-        self.prev = psutil.net_io_counters()
+        # measure over 1 second; store previous total
+        self._last = psutil.net_io_counters().bytes_recv + psutil.net_io_counters().bytes_sent
 
     def check(self):
-        time.sleep(1)
-        curr = psutil.net_io_counters()
-        sent = curr.bytes_sent - self.prev.bytes_sent
-        recv = curr.bytes_recv - self.prev.bytes_recv
-        total = sent + recv
-        self.prev = curr
-        return (total >= self.threshold, total)
+        now = psutil.net_io_counters()
+        total = now.bytes_recv + now.bytes_sent
+        # bytes/sec since last call
+        bps = (total - self._last)
+        self._last = total
+        return (bps >= self.threshold, bps)

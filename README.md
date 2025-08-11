@@ -18,6 +18,8 @@ It monitors the
 
 When it detects an issue it sends an email to the specified email addresses.
 
+CPU and Network alert after 2 consecutive failures. The rest after 1 failure.
+
 ## Installation
 ### Get AWS credentials
 You will need to get AWS credentials to use this application. You can get them from the AWS console.
