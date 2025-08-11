@@ -88,7 +88,7 @@ root@s2.syd.example.com:/opt/server_monitor_and_alerter# git reset --hard origin
 HEAD is now at 5091f74 anonymize subject_suffix
 ```
 
-#Configure the application
+# Configure the application
 The configuration for this application is in the config.yaml file.
 There is a sample config.yaml file called config.example.yaml in the repository which is well documented. 
 
