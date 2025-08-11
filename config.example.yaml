@@ -36,7 +36,7 @@ thresholds:
 
   # List any client apps that should be monitored. These are
   # your node, python or php apps that you want to monitor. You need to specify
-  # the full path to the apps script file.
+  # the full path to the apps script file as seen in `ps ax` output.
   client_apps:
     "/home/client1/client_app.js": 1  # min running procs
     "/home/client2/client_app.js": 1

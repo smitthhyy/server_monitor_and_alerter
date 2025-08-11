@@ -43,8 +43,22 @@ Use the following commands to install the application.
 8. Make sure your in the /opt/server_monitor_and_alerter/bin directory
 9. Run the application using `python3 main.py`
 
-Once you are happy that everything is working the way you want, you can set up the systemctl file to run the app.
+Once you are happy that everything is working the way you want, you can set up the systemd file to run the app.
 
+The file is called server_monitor_and_alerter.service and is located in the /opt/server_monitor_and_alerter directory.
+It will need to be modified to match your environment. The various settings are:
+- User: The user to run the application as. This is usually root if that is the user that has the AWS credentials.
+- WorkingDirectory: The directory to run the application from
+- ExecStart: The command to run the application
+- Restart: The restart policy for the application
+- Environment: The environment variables to set for the application
+- StandardOutput: The file to log the application output to
+- StandardError: The file to log the application error to
+- SyslogIdentifier: The name of the application in syslog
+- Description: A description of the application
+- Wants: The other services that this application depends on
+
+The following commands will copy the file to the correct location and enable the service.
 1. `cp server_monitor_and_alerter.service /etc/systemd/system`
 2. `systemctl enable server_monitor_and_alerter.service`
 3. `systemctl start server_monitor_and_alerter.service`
@@ -73,5 +87,9 @@ root@s2.syd.example.com:/opt/server_monitor_and_alerter# git reset --hard origin
 HEAD is now at 5091f74 anonymize subject_suffix
 ```
 
-This fetches the latest code from the GitHub repository and resets the 
-local repository to the latest code without overwriting the config.yaml file.
+#Configure the application
+The configuration for this application is in the config.yaml file.
+There is a sample config.yaml file called config.example.yaml in the repository which is well documented. 
+
+Changes to config.yaml will require a restart of the application with `systemctl restart server_monitor_and_alerter.service`
+
