@@ -33,7 +33,8 @@ Use the following commands to install the application.
 
 1. `cd /opt`
 2. `git clone https://github.com/smitthhyy/server_monitor_and_alerter.git`
-3. You may need to run `apt update; apt install python3.10-venv -y` before the next step
+3. You may need to run `apt update; apt install python3.10-venv -y` before the next step. Note some systems
+may call it python3-venv.
 3. create a virtual environment using `python3 -m venv /opt/server_monitor_and_alerter`
 4. `cd /opt/server_monitor_and_alerter`
 4. run `source bin/activate`
