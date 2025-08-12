@@ -1,71 +1,100 @@
-# Amazon AWS configuration. This application uses Amazon SES to send
-# alert emails. See https://aws.amazon.com/ses/ for more information.
-# It expects to find AWS credentials in the environment. Specifically:
-# AWS_ACCESS_KEY_ID
-# AWS_SECRET_ACCESS_KEY
-# Alternatively, you can set them in ~/.aws/credentials with:
-#    [default]
-#    aws_access_key_id = YOUR_ACCESS_KEY_ID
-#    aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+# =====================================================================
+# Server Monitor and Alerter — Example Configuration (config.yaml)
+# =====================================================================
+# Notes:
+# - Alerts are emailed using Amazon SES.
+# - CPU and Network checks alert after 2 consecutive failures; others after 1.
+# - Units are documented for each setting. Keep types as shown.
+# - After editing config.yaml, restart the service if running under systemd.
+# =====================================================================
+
+# -----------------------------
+# AWS (SES) email configuration
+# -----------------------------
 aws:
+  # AWS region where SES is enabled (e.g., us-east-1, ap-southeast-2)
   region: ap-southeast-2
-  ses_sender: no-reply@example.com
+
+  # Verified SES sender address (must be verified in SES, or domain verified)
+  ses_sender: no-reply@your-domain.example
+
+  # One or more recipient email addresses
   ses_recipients:
-    - admin1@example.com
-    - admin2@example.com
+    - admin1@your-domain.example
+    - admin2@your-domain.example
 
+# -------------------------------------------------
+# Thresholds and checks (percentages and byte rates)
+# -------------------------------------------------
 thresholds:
-  # Thresholds in %
-  disk_pct: 80
-  cpu_pct: 75
-  mem_pct: 75
-  # Thresholds in bytes/sec
-  net_bytes: 10000000     # bytes/sec
-  # List any URLs that should be monitored.
+  # Percent-based thresholds (0–100)
+  disk_pct: 80         # Alert if used disk percent exceeds this value
+  cpu_pct: 75          # Alert if average CPU percent exceeds this value
+  mem_pct: 75          # Alert if used memory percent exceeds this value
+
+  # Network threshold in bytes per second (aggregate)
+  net_bytes: 10000000  # e.g., 10,000,000 B/s ≈ 10 MB/s
+
+  # HTTP/HTTPS health URLs to check (200 status is considered healthy)
   server_check_urls:
-    - https://site1.example.com:443/health
-    - https://site2.example.com:443/health
-  # List any processes that should be monitored.
-  # as a map instead of a list
+    - https://site1.example.com/health
+    - https://site2.example.com/health
+
+  # Process checks: map "process_name" -> minimum expected instances
+  # Use the executable/command name as it appears in `ps` output.
   processes:
-    apache2:                      2   # expect at least 2 apache workers
-    mysqld:                       1
-    mosquitto:                    1
-    api-sales-receiver:           1
-    sale-receiver-ubuntu64-intel: 1
+    apache2: 2                      # expect at least 2 workers
+    mysqld: 1
+    mosquitto: 1
 
-  # List any client apps that should be monitored. These are
-  # your node, python or php apps that you want to monitor. You need to specify
-  # the full path to the apps script file as seen in `ps ax` output.
+  # Client application checks:
+  # - Use absolute path to the app's script (Node/Python/PHP etc.).
+  # - A match occurs by process CWD or resolved script path.
+  # - Value is the minimum number of running processes expected.
   client_apps:
-    "/home/client1/client_app.js": 1  # min running procs
-    "/home/client2/client_app.js": 1
+    "/srv/client1/app.js": 1
+    "/srv/client2/app.js": 1
 
-  # alert_repeat_cycles: how many consecutive alerts before
-  # sending subsequent emails for same alert. Multiply by
-  # interval_secs to get total time between alerts.
+  # Repeated alert control:
+  # - After an initial alert, wait this many consecutive failing cycles
+  #   before emailing again for the same alert.
+  # - Total time between repeated emails = alert_repeat_cycles * interval_secs
   alert_repeat_cycles: 15
 
-# time in seconds between checks
+# ----------------------------------------------------
+# Scheduler cadence (seconds between full check cycles)
+# ----------------------------------------------------
 interval_secs: 60
 
-# The alert email subject stats with [ALERT] then subject_suffix
-subject_suffix: "[s1-customer]"
+# ----------------------------------------------------
+# Email subject customization
+# ----------------------------------------------------
+# Emails start with "[ALERT]" or "[RECOVERY]" and then this suffix.
+subject_suffix: "[prod-web-1]"
 
+# -----------------------------
+# Logging configuration
+# -----------------------------
 logging:
-  # global root level: DEBUG, INFO, WARNING, ERROR, etc.
-  root_level: DEBUG
+  # Global log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  root_level: INFO
 
-  # per-module overrides:
-  # key = logger name, value = level
+  # Per-module overrides (logger name -> level)
+  # Set to DEBUG for deeper diagnostics while testing.
   overrides:
-    monitors.client_app: DEBUG
+    monitors.client_app: INFO
     monitors.cpu: INFO
-    monitors.disk: DEBUG
-    monitors.memory: WARNING
+    monitors.disk: INFO
+    monitors.memory: INFO
     monitors.network: INFO
-    monitors.process: WARNING
-    monitors.server: WARNING
+    monitors.process: INFO
+    monitors.server: INFO
 
-
-
+# =====================================================================
+# Credentials note:
+# - Provide AWS credentials via environment (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+#   or ~/.aws/credentials under the appropriate profile.
+# Security tips:
+# - Use least-privilege IAM policies for SES.
+# - Restrict permissions on config files containing sensitive values.
+# =====================================================================
