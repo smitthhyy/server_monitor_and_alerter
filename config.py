@@ -9,6 +9,7 @@ class Config:
         self.interval = data.get("interval_secs", 60)
         # new: optional string to tack on after [ALERT]
         self.subject_suffix = data.get("subject_suffix", "")
+        self.logging_cfg = data.get("logging", {})
 
 
 config = Config()

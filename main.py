@@ -25,28 +25,23 @@ from monitors.server import ServerMonitor
 from monitors.process import ProcessMonitor
 from monitors.client_app import ClientAppMonitor
 
-# silence urllib3 DEBUG chatter
+# 1) configure root logger
+root_lvl = config.logging_cfg.get("root_level", "INFO")
+logging.basicConfig(
+    level=getattr(logging, root_lvl),
+    format="%(asctime)s %(name)s %(levelname)s: %(message)s"
+)
+
+# 2) apply granular overrides
+for logger_name, lvl_name in config.logging_cfg.get("overrides", {}).items():
+    lvl = getattr(logging, lvl_name, None)
+    if lvl is not None:
+        logging.getLogger(logger_name).setLevel(lvl)
+
+# 3) silence chatter from external libs if needed
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
-
-# silence botocore DEBUG chatter
 logging.getLogger("botocore").setLevel(logging.WARNING)
-
-# Toggle client‐app debug logging here:
-# Note this turns on/off debug logging for all monitors
-ENABLE_DEBUG = False
-
-# configure root logger once
-if not ENABLE_DEBUG:
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s %(name)s %(levelname)s: %(message)s"
-    )
-else:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s: %(message)s"
-    )
 
 def build_monitors():
     t = config.thresholds

@@ -52,3 +52,20 @@ interval_secs: 60
 # The alert email subject stats with [ALERT] then subject_suffix
 subject_suffix: "[s1-customer]"
 
+logging:
+  # global root level: DEBUG, INFO, WARNING, ERROR, etc.
+  root_level: DEBUG
+
+  # per-module overrides:
+  # key = logger name, value = level
+  overrides:
+    monitors.client_app: DEBUG
+    monitors.cpu: INFO
+    monitors.disk: DEBUG
+    monitors.memory: WARNING
+    monitors.network: INFO
+    monitors.process: WARNING
+    monitors.server: WARNING
+
+
+
