@@ -17,40 +17,44 @@ class ProcessMonitor(BaseMonitor):
             1 for p in psutil.process_iter()
             if p.name() in self.names
         )
-        # add this debug line:
         logger.debug(
             "ProcessMonitor looking for %r → found %d (min_count=%d)",
             self.names, found, self.min_count
         )
+        # breach == True means error (below minimum count)
         return (found < self.min_count, found)
 
     def run(self):
         status, value = self.check()
 
         if status:
-            # 1) increment the counter
+            # increment failure count
             self._error_count += 1
 
-            # 2) send only on first error or at repeat threshold
-            if self._error_count == 1 or self._error_count >= self._repeat_cycles:
+            # send on first qualifying failure per configured consecutive cycles
+            if (self._error_count == self.consecutive_required
+                or self._error_count >= self._repeat_cycles):
+
                 name_list = ", ".join(self.names)
                 subject   = f"[ALERT] {self.name} ({name_list}) threshold exceeded"
                 body      = f"{self.name} for [{name_list}] value={value}, min_count={self.min_count}"
                 from alert import alerter
                 alerter.send(subject, body)
+                self._alert_sent = True
 
-                # 3) reset on repeat‐alert
+                # reset on repeat alert boundary
                 if self._error_count >= self._repeat_cycles:
                     self._error_count = 0
 
         else:
-            # recovery path: only send if we were previously in error
-            if self._last_status:
+            # only send recovery if we were previously in error AND an alert was sent
+            if self._last_status and self._alert_sent:
                 name_list = ", ".join(self.names)
                 subject   = f"[RECOVERY] {self.name} ({name_list}) back to normal"
                 body      = f"{self.name} for [{name_list}] value={value}, min_count={self.min_count}"
                 from alert import alerter
                 alerter.send(subject, body)
+                self._alert_sent = False
 
             # reset counter whenever healthy
             self._error_count = 0

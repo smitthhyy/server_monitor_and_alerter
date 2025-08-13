@@ -16,7 +16,7 @@ Monitored items:
 - HTTP/HTTPS endpoints
 
 Alerting behavior:
-- CPU and Network: alert after 2 consecutive failures
+- CPU and Network: alert after 5 consecutive failures
 - All others: alert after 1 failure
 
 ## Requirements
@@ -99,6 +99,41 @@ systemctl restart server_monitor_and_alerter.service
 systemctl status server_monitor_and_alerter.service
 ```
 It is a good idea to wait a minute and do the status again ensuring it's pid is the same (it's not having an error and restarting).
+## Testing
+
+- Make sure your virtual environment is activated and dependencies are installed.
+- Tests use Python’s built-in unittest discovery and do not make real network/SES calls (email sending is mocked).
+
+Run all tests:
+- PowerShell/Windows:
+```
+python -m unittest discover -s tests -p "test_*.py"
+```
+- Bash/Linux/macOS (quote to prevent shell globbing):
+```
+python -m unittest discover -s tests -p 'test_*.py'
+```
+Useful options:
+- Verbose output:
+```
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+- Stop on first failure:
+```
+python -m unittest discover -s tests -p "test_*.py" -f
+```
+- Run a single test file:
+```
+python -m unittest tests/test_server_monitor.py
+```
+- Run a specific test case or method:
+```
+python -m unittest tests.test_server_monitor.ServerMonitorTests
+python -m unittest tests.test_server_monitor.ServerMonitorTests.test_server_consecutive_cycles_and_recovery
+```
+Notes:
+- If running in Bash, prefer single quotes around the pattern (e.g., 'test_*.py') so the shell doesn’t expand the wildcard.
+- No additional setup is required for AWS in tests; email sending is patched out.
 
 ## Troubleshooting
 - SES send failures:

@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 class NetworkMonitor(BaseMonitor):
     name = "NetworkTraffic"
-    consecutive_required = 2
+    consecutive_required = 5
 
     def __init__(self, threshold):
         super().__init__(threshold)

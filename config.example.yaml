@@ -41,16 +41,12 @@ thresholds:
     - https://site2.example.com/health
 
   # Process checks: map "process_name" -> minimum expected instances
-  # Use the executable/command name as it appears in `ps` output.
   processes:
-    apache2: 2                      # expect at least 2 workers
+    apache2: 2
     mysqld: 1
     mosquitto: 1
 
-  # Client application checks:
-  # - Use absolute path to the app's script (Node/Python/PHP etc.).
-  # - A match occurs by process CWD or resolved script path.
-  # - Value is the minimum number of running processes expected.
+  # Client application checks: path -> minimum expected processes
   client_apps:
     "/srv/client1/app.js": 1
     "/srv/client2/app.js": 1
@@ -60,6 +56,19 @@ thresholds:
   #   before emailing again for the same alert.
   # - Total time between repeated emails = alert_repeat_cycles * interval_secs
   alert_repeat_cycles: 15
+
+  # NEW: How many consecutive failing cycles are required before the FIRST alert.
+  # Keys must match monitor names:
+  #   - DiskUsage, CPUUsage, MemUsage, NetworkTraffic, ServerStatus, Process, ClientApp
+  # If a key is missing, the monitor's default is used (usually 1).
+  alert_consecutive_cycles:
+    DiskUsage: 1
+    CPUUsage: 2
+    MemUsage: 1
+    NetworkTraffic: 2
+    ServerStatus: 1
+    Process: 1
+    ClientApp: 1
 
 # ----------------------------------------------------
 # Scheduler cadence (seconds between full check cycles)
@@ -76,11 +85,7 @@ subject_suffix: "[prod-web-1]"
 # Logging configuration
 # -----------------------------
 logging:
-  # Global log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
   root_level: INFO
-
-  # Per-module overrides (logger name -> level)
-  # Set to DEBUG for deeper diagnostics while testing.
   overrides:
     monitors.client_app: INFO
     monitors.cpu: INFO
@@ -98,3 +103,4 @@ logging:
 # - Use least-privilege IAM policies for SES.
 # - Restrict permissions on config files containing sensitive values.
 # =====================================================================
+

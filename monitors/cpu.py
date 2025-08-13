@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 class CpuMonitor(BaseMonitor):
     name = "CPUUsage"
-    consecutive_required = 2
+    consecutive_required = 5
 
     def check(self):
         pct = psutil.cpu_percent(interval=1)
