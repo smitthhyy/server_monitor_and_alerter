@@ -18,6 +18,7 @@ Monitored items:
 Alerting behavior:
 - CPU and Network: alert after 5 consecutive failures
 - All others: alert after 1 failure
+- Can be overridden in config.yaml for specific items
 
 ## Requirements
 - Linux server with systemd (for optional service mode)
