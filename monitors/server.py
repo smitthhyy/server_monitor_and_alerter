@@ -11,7 +11,12 @@ class ServerMonitor(BaseMonitor):
     def __init__(self, url):
         super().__init__(threshold=None)
         self.url = url
+        # Include the URL in the displayed name for alert/recovery emails.
+        # Note: BaseMonitor reads alert_consecutive_cycles at __init__, so changing
+        # self.name here won't affect your config mapping for "ServerStatus".
+        self.name = f"ServerStatus {self.url}"
         logger.debug("ServerMonitor initialized with url=%s", self.url)
+
 
     def check(self):
         try:
